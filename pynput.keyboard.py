@@ -145,7 +145,8 @@ def on_press(key):
 
 # блок `with` слушает события до выхода
 with keyboard.Listener(
-        on_press=on_press) as listener:
+        on_press=on_press
+        ) as listener:
     try:
         listener.join()
     except MyException as e:
@@ -203,4 +204,84 @@ with keyboard.Events() as events:
 
 События будут экземплярами внутренних классов, найденных в keyboard.Events.
 '''
+####################################################################################
+'''
+Прослушивание глобальных горячих клавиш.
+
+Обычный вариант использования клавиатурных мониторов - реакция на глобальные горячие клавиши. 
+Так как слушатель не поддерживает никакого состояния, то горячие клавиши, 
+использующие сочетания несколько клавиш, должны где-то хранить это состояние.
+
+Для этой цели модуль pynput предоставляет класс keyboard.HotKey. 
+Он содержит два метода для обновления состояния, предназначенных для простого взаимодействия 
+со слушателем клавиатуры: keyboard.HotKey.press и keyboard.HotKey.release, 
+которые можно напрямую передавать в качестве обратных вызовов слушателя.
+'''
+# Предполагаемое использование выглядит следующим образом:
+print('--------keyboard.HotKey---------')
+from pynput import keyboard
+
+def on_activate():
+    print('Активирована глобальная горячая клавиша!')
+    # для выхода
+    raise Exception
+
+def for_canonical(f):
+    return lambda k: f(l.canonical(k))
+
+# определение горячей клавиши
+hotkey = keyboard.HotKey(
+    keyboard.HotKey.parse('<ctrl>+<alt>+h'),
+    on_activate
+    )
+
+with keyboard.Listener(
+        on_press=for_canonical(hotkey.press),
+        on_release=for_canonical(hotkey.release)
+        ) as l:
+    try:
+        l.join()
+    except Exception as e:
+        pass
+
+'''
+Представленный код создаст горячую клавишу, а затем использует слушатель 
+для обновления ее состояния. Как только все указанные клавиши одновременно будут нажаты, 
+будет вызвана функция on_activate().
+
+Обратите внимание, что ключи передаются через keyboard.Listener.canonical перед 
+передачей экземпляру keyboard.HotKey. Это делается для того, чтобы удалить любое 
+состояние модификатора из ключевых событий и нормализовать модификаторы с более чем 
+одной физической клавишей.
+
+Метод keyboard.HotKey.parse - это удобная функция для преобразования строк быстрого 
+доступа в наборы ключей. для получения дополнительной информации, смотрите его 
+документацию keyboard.HotKey.
+
+Чтобы зарегистрировать несколько глобальных горячих клавиш, используйте 
+вспомогательный класс keyboard.GlobalHotKeys:
+'''
+print('--------keyboard.GlobalHotKeys---------')
+from pynput import keyboard
+
+def on_activate_h():
+    print('Нажато сочетание клавиш: <ctrl>+<alt>+h')
+
+def on_activate_i():
+    print('Нажато сочетание клавиш: <ctrl>+<alt>+i')
+
+def on_activate_e():
+        print('Нажато сочетание клавиш: <ctrl>+<alt>+e')
+        # для выхода из программы
+        raise Exception
+
+with keyboard.GlobalHotKeys({
+        '<ctrl>+<alt>+h': on_activate_h,
+        '<ctrl>+<alt>+i': on_activate_i,
+        '<ctrl>+<alt>+e': on_activate_e}
+        ) as h:
+    try:
+        h.join()
+    except Exception as e:
+        pass
 ####################################################################################
