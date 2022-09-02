@@ -8,6 +8,7 @@
 Управление клавиатурой.
 Для управления клавиатурой используйте класс keyboard.Controller следующим образом:
 '''
+print('--------pynput.keyboard import Key, Controller---------')
 from pynput.keyboard import Key, Controller
 
 keyboard = Controller()
@@ -60,7 +61,54 @@ red@red:~/WORK/PYTHON/MyPROG/Python.Example$ aAAHello World
 '''
 ####################################################################################
 '''
+Мониторинг клавиатуры.
+Для мониторинга клавиатуры используйте класс keyboard.Listener следующим образом:
+'''
+print('--------from pynput import keyboard---------')
+from pynput import keyboard
 
+def on_press(key):
+    try:
+        print(f'Нажата буквенно-цифровая клавиша: {key.char}')
+    except AttributeError:
+        print(f'Нажата специальная клавиша: {key}')
+
+def on_release(key):
+    print(f'{key} released')
+    if key == keyboard.Key.esc:
+        # Возврат False - остановит слушатель
+        return False
+
+# блок `with` слушает события до выхода 
+# до остановки слушателя
+with keyboard.Listener(
+        on_press=on_press,
+        on_release=on_release
+        ) as listener:
+    listener.join()
+
+# #...или неблокирующим способом:
+# listener = keyboard.Listener(
+#     on_press=on_press,
+#     on_release=on_release
+# )
+# listener.start()
+'''
+Слушатель клавиатуры keyboard.Listener - это threading.Thread, 
+и все обратные вызовы будут вызываться из потока.
+
+Чтобы остановить слушатель клавиатуры, можно вызвать keyboard.Listener.stop() 
+из любого места, что в свою очередь вызовет исключение StopException 
+или возвратить False из функции обратного вызова.
+
+Аргумент key, который передается слушателем в обратные вызовы, является keyboard.Key 
+для специальных клавиш и keyboard.KeyCode для обычных буквенно-цифровых клавиш 
+или просто None для неизвестных клавиш.
+
+При использовании приведенной выше неблокирующей версии текущий поток продолжит 
+выполнение. Это может быть необходимо при интеграции с другими платформами 
+графического интерфейса, включающими основной цикл, но при запуске из скрипта 
+это приведет к немедленному завершению программы.
 '''
 ####################################################################################
 
