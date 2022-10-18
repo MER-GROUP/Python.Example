@@ -97,7 +97,7 @@ print('Выполнено')
 # Th:Timer-1 Worker запущен
 ####################################################################################
 '''
-Пример выхода из программы после двух секунд.
+Пример выхода из программы после двух секунд (первая версия).
 '''
 class ExamTimer:
     def __init__(self, n: int) -> None:
@@ -113,4 +113,39 @@ if __name__ == '__main__':
     ExamTimer(2)
     for i in range(10000000000000000000000000000):
         print(i)
+####################################################################################
+'''
+Пример выхода из программы после двух секунд (вторая версия).
+'''
+class ExamTimer:
+    def __init__(self, n: int) -> None:
+        from threading import Timer
+        self.t = Timer(n, self.exit)
+
+    def cancel(self):
+        self.t.cancel()
+
+    def exit(self):
+        print('Алгоритм не успел решить задачу по времени')
+        __import__('os').abort()
+
+    def start(self):
+        self.t.start()
+    
+class OdinDvaTri:
+    def __init__(self, n: int) -> None:
+        self.my_list = range(1, n + 1)
+        self.n = n
+
+    def algo(self) -> str:
+        timer = ExamTimer(2)
+        self.my_list = map(
+            lambda x: str(x) if(1 == len(str(x))) else str(x)[::-1],
+            self.my_list
+        )
+        timer.cancel()
+        return ''.join(list(self.my_list))[self.n - 1]
+
+if __name__ == '__main__':
+    print(OdinDvaTri(int(input())).algo())
 ####################################################################################
