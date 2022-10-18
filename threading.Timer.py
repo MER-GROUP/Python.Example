@@ -139,12 +139,11 @@ class OdinDvaTri:
 
     def algo(self) -> str:
         timer = ExamTimer(2)
-        self.my_list = map(
-            lambda x: str(x) if(1 == len(str(x))) else str(x)[::-1],
-            self.my_list
-        )
+        timer.start()
+        for i in range(10000000000000000000000000000):
+            print(i)
         timer.cancel()
-        return ''.join(list(self.my_list))[self.n - 1]
+        return 'Done'
 
 if __name__ == '__main__':
     print(OdinDvaTri(int(input())).algo())
